@@ -11,6 +11,7 @@ import (
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/internal/descriptor"
 	gen "github.com/grpc-ecosystem/grpc-gateway/v2/internal/generator"
+	openapioptions "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv3/options"
 	"google.golang.org/genproto/googleapis/api/annotations"
 	statuspb "google.golang.org/genproto/googleapis/rpc/status"
 	"google.golang.org/grpc/grpclog"
@@ -52,10 +53,17 @@ func (g *generator) Generate(targets []*descriptor.File) ([]*descriptor.Response
 	// Handle merge mode
 	if g.reg.IsAllowMerge() {
 		var mergedTarget *descriptor.File
+		// try to find proto leader
+		for _, f := range targets {
+			if proto.HasExtension(f.Options, openapioptions.E_Openapiv3Document) {
+				mergedTarget = f
+				break
+			}
+		}
 		for _, f := range targets {
 			if mergedTarget == nil {
 				mergedTarget = f
-			} else {
+			} else if mergedTarget != f {
 				mergedTarget.Enums = append(mergedTarget.Enums, f.Enums...)
 				mergedTarget.Messages = append(mergedTarget.Messages, f.Messages...)
 				mergedTarget.Services = append(mergedTarget.Services, f.Services...)
@@ -960,7 +968,7 @@ func (g *generator) encodeOpenAPI(file *wrapper) (*descriptor.ResponseFile, erro
 	name := file.fileName
 	ext := filepath.Ext(name)
 	base := strings.TrimSuffix(name, ext)
-	output := fmt.Sprintf("%s.openapi." + string(g.format), base)
+	output := fmt.Sprintf("%s.openapi."+string(g.format), base)
 
 	return &descriptor.ResponseFile{
 		CodeGeneratorResponse_File: &pluginpb.CodeGeneratorResponse_File{

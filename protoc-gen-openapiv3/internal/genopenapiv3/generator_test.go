@@ -2,12 +2,16 @@ package genopenapiv3
 
 import (
 	"encoding/json"
+	"fmt"
+	"os"
 	"reflect"
 	"strings"
 	"testing"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/internal/descriptor"
+	"google.golang.org/protobuf/encoding/prototext"
 	"google.golang.org/protobuf/types/descriptorpb"
+	"google.golang.org/protobuf/types/pluginpb"
 )
 
 func TestConvertPathTemplate(t *testing.T) {
@@ -725,7 +729,6 @@ func TestGetFieldBehavior(t *testing.T) {
 			Options: nil,
 		},
 	}
-
 	behaviors := getFieldBehavior(field)
 	if len(behaviors) != 0 {
 		t.Errorf("getFieldBehavior() returned %d behaviors, want 0", len(behaviors))
@@ -976,4 +979,100 @@ func TestSchemaNullableField(t *testing.T) {
 	if strings.Contains(string(data), `"nullable"`) {
 		t.Errorf("Expected no nullable field in output, got: %s", string(data))
 	}
+}
+
+func TestGenerateFromProtoDescriptor(t *testing.T) {
+	tests := []struct {
+		name           string
+		inputProtoText string
+		wantJSON       string
+	}{
+		{
+			name:           "simple echo service",
+			inputProtoText: "testdata/generator/simple_echo.prototext",
+			wantJSON:       "testdata/generator/simple_echo.openapi.json",
+		},
+		{
+			name:           "merged",
+			inputProtoText: "testdata/generator/merged.prototext",
+			wantJSON:       "testdata/generator/merged.openapi.json",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Load prototext file
+			b, err := os.ReadFile(tt.inputProtoText)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			// Unmarshal into CodeGeneratorRequest
+			var req pluginpb.CodeGeneratorRequest
+			if err := prototext.Unmarshal(b, &req); err != nil {
+				t.Fatal(err)
+			}
+
+			// Generate OpenAPI spec
+			resp := requireGenerate(t, &req, "3.1.0")
+			if len(resp) != 1 {
+				t.Fatalf("invalid count, expected: 1, actual: %d", len(resp))
+			}
+			got := resp[0].GetContent()
+
+			// Print the generated output for debugging
+			if false {
+				if err := os.WriteFile(fmt.Sprintf("%s.generated.json", tt.name), []byte(got), 0644); err != nil {
+					t.Fatalf("Failed to write generated JSON for debugging: %v", err)
+				}
+			}
+
+			// Load expected JSON
+			wantBytes, err := os.ReadFile(tt.wantJSON)
+			if err != nil {
+				t.Fatalf("Failed to read expected JSON file: %v", err)
+			}
+			want := string(wantBytes)
+
+			// Compare generated JSON with expected JSON
+			if !jsonEqual(t, got, want) {
+				t.Errorf("Generated JSON does not match expected JSON.\nGot:\n%s\n\nWant:\n%s", got, want)
+			}
+		})
+	}
+}
+
+// requireGenerate is a helper function that generates OpenAPI specs from a CodeGeneratorRequest.
+func requireGenerate(
+	tb testing.TB,
+	req *pluginpb.CodeGeneratorRequest,
+	openapiVersion string,
+) []*descriptor.ResponseFile {
+	tb.Helper()
+
+	reg := descriptor.NewRegistry()
+	reg.SetAllowMerge(true)
+
+	if err := reg.Load(req); err != nil {
+		tb.Fatalf("failed to load request: %s", err)
+	}
+
+	var targets []*descriptor.File
+	for _, target := range req.FileToGenerate {
+		f, err := reg.LookupFile(target)
+		if err != nil {
+			tb.Fatalf("failed to lookup file: %s", err)
+		}
+
+		targets = append(targets, f)
+	}
+
+	g := New(reg, FormatJSON, openapiVersion)
+
+	resp, err := g.Generate(targets)
+	if err != nil {
+		tb.Fatalf("failed to generate targets: %s", err)
+	}
+
+	return resp
 }

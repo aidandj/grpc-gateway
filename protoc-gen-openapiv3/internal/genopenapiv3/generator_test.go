@@ -3,7 +3,6 @@ package genopenapiv3
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"os"
 	"reflect"
 	"strings"
@@ -1070,6 +1069,22 @@ func TestGenerateFromProtoDescriptor(t *testing.T) {
 				reg.SetAllowMerge(true)
 			},
 		},
+		{
+			name:           "query param field visibility - internal fields should be excluded",
+			inputProtoText: "testdata/generator/query_param_visibility.prototext",
+			wantJSON:       "testdata/generator/query_param_visibility_none.openapi.json",
+			registryModifier: func(reg *descriptor.Registry) {
+				reg.SetVisibilityRestrictionSelectors([]string{})
+			},
+		},
+		{
+			name:           "oneof field visibility - internal fields should be excluded from oneof",
+			inputProtoText: "testdata/generator/oneof_visibility.prototext",
+			wantJSON:       "testdata/generator/oneof_visibility_none.openapi.json",
+			registryModifier: func(reg *descriptor.Registry) {
+				reg.SetVisibilityRestrictionSelectors([]string{})
+			},
+		},
 	}
 
 	for _, tt := range tests {
@@ -1092,13 +1107,6 @@ func TestGenerateFromProtoDescriptor(t *testing.T) {
 				t.Fatalf("invalid count, expected: 1, actual: %d", len(resp))
 			}
 			got := resp[0].GetContent()
-
-			// Print the generated output for debugging
-			if true {
-				if err := os.WriteFile(fmt.Sprintf("%s.generated.json", tt.name), []byte(got), 0644); err != nil {
-					t.Fatalf("Failed to write generated JSON for debugging: %v", err)
-				}
-			}
 
 			// Load expected JSON
 			wantBytes, err := os.ReadFile(tt.wantJSON)

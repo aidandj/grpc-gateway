@@ -120,13 +120,17 @@
             "v1EchoRequest": {
                 "type": "object",
                 "properties": {
-                    "message": {
-                        "type": "string"
+                    "explicit_string": {
+                        "type": "string",
+                        "nullable": true
                     },
-                    "message2": {
+                    "implicit_string": {
                         "type": "string"
                     }
-                }
+                },
+                "required": [
+                    "implicit_string"
+                ]
             },
             "v1EchoResponse": {
                 "type": "object",
@@ -134,7 +138,10 @@
                     "message": {
                         "type": "string"
                     }
-                }
+                },
+                "required": [
+                    "message"
+                ]
             }
         }
     },

@@ -1010,6 +1010,25 @@ func TestGenerateFromProtoDescriptor(t *testing.T) {
 			},
 		},
 		{
+			name:           "simple echo service with proto3 field semantics",
+			inputProtoText: "testdata/generator/simple_echo.prototext",
+			wantJSON:       "testdata/generator/simple_echo_proto3_semantics.openapi.json",
+			registryModifier: func(reg *descriptor.Registry) {
+				reg.SetPreserveRPCOrder(false)
+				reg.SetUseProto3FieldSemantics(true)
+			},
+		},
+		{
+			name:           "simple echo service with proto3 field semantics nullable",
+			inputProtoText: "testdata/generator/simple_echo.prototext",
+			wantJSON:       "testdata/generator/simple_echo_proto3_semantics_nullable.openapi.json",
+			registryModifier: func(reg *descriptor.Registry) {
+				reg.SetPreserveRPCOrder(false)
+				reg.SetUseProto3FieldSemantics(true)
+				reg.SetProto3OptionalNullable(true)
+			},
+		},
+		{
 			name:           "simple echo service ordered",
 			inputProtoText: "testdata/generator/simple_echo.prototext",
 			wantJSON:       "testdata/generator/simple_echo_ordered.openapi.json",
@@ -1083,6 +1102,15 @@ func TestGenerateFromProtoDescriptor(t *testing.T) {
 			wantJSON:       "testdata/generator/oneof_visibility_none.openapi.json",
 			registryModifier: func(reg *descriptor.Registry) {
 				reg.SetVisibilityRestrictionSelectors([]string{})
+			},
+		},
+		{
+			name:           "simple editions",
+			inputProtoText: "testdata/generator/simple_editions.prototext",
+			wantJSON:       "testdata/generator/simple_editions.openapi.json",
+			registryModifier: func(reg *descriptor.Registry) {
+				reg.SetProto3OptionalNullable(true)
+				reg.SetUseProto3FieldSemantics(true)
 			},
 		},
 	}

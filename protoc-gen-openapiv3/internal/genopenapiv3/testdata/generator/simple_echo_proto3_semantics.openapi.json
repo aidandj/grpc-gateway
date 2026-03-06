@@ -126,7 +126,10 @@
                     "message2": {
                         "type": "string"
                     }
-                }
+                },
+                "required": [
+                    "message"
+                ]
             },
             "v1EchoResponse": {
                 "type": "object",
@@ -134,7 +137,10 @@
                     "message": {
                         "type": "string"
                     }
-                }
+                },
+                "required": [
+                    "message"
+                ]
             }
         }
     },

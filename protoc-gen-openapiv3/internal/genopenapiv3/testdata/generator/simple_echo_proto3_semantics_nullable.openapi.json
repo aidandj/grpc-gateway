@@ -124,9 +124,13 @@
                         "type": "string"
                     },
                     "message2": {
-                        "type": "string"
+                        "type": "string",
+                        "nullable": true
                     }
-                }
+                },
+                "required": [
+                    "message"
+                ]
             },
             "v1EchoResponse": {
                 "type": "object",
@@ -134,7 +138,10 @@
                     "message": {
                         "type": "string"
                     }
-                }
+                },
+                "required": [
+                    "message"
+                ]
             }
         }
     },

@@ -1,27 +1,29 @@
 file_to_generate: "example/v1/echo.proto"
 proto_file: {
+  edition: EDITION_2023
   name: "example/v1/echo.proto"
   package: "example.v1"
   message_type: {
     name: "EchoRequest"
     field: {
-      name: "message"
+      name: "explicit_string"
       number: 1
-      label: LABEL_OPTIONAL
+      options: {
+        features: {
+            field_presence: EXPLICIT
+        }
+      }
       type: TYPE_STRING
-      json_name: "message"
     }
     field: {
-      name: "message2"
+      name: "implicit_string"
       number: 2
+      options: {
+        features: {
+            field_presence: IMPLICIT
+        }
+      }
       type: TYPE_STRING
-      label: LABEL_OPTIONAL
-      oneof_index: 0
-      proto3_optional: true
-      json_name: "message2"
-    }
-    oneof_decl {
-      name: "_message2"
     }
   }
   message_type: {
@@ -67,5 +69,5 @@ proto_file: {
       }
     }
   }
-  syntax: "proto3"
+  syntax: "editions"
 }

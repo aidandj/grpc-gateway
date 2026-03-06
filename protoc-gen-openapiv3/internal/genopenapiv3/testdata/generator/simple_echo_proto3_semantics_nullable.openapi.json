@@ -31,6 +31,16 @@
                                 }
                             }
                         }
+                    },
+                    "default": {
+                        "description": "An unexpected error response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/google.rpc.Status"
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -61,6 +71,16 @@
                                 }
                             }
                         }
+                    },
+                    "default": {
+                        "description": "An unexpected error response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/google.rpc.Status"
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -68,6 +88,35 @@
     },
     "components": {
         "schemas": {
+            "google.rpc.Status": {
+                "type": "object",
+                "description": "The `Status` type defines a logical error model that is suitable for different programming environments.",
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "format": "int32",
+                        "description": "The status code, which should be an enum value of google.rpc.Code."
+                    },
+                    "details": {
+                        "type": "array",
+                        "description": "A list of messages that carry the error details.",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "@type": {
+                                    "type": "string",
+                                    "description": "A URL/resource name that uniquely identifies the type of the serialized protocol buffer message."
+                                }
+                            },
+                            "additionalProperties": {}
+                        }
+                    },
+                    "message": {
+                        "type": "string",
+                        "description": "A developer-facing error message, which should be in English."
+                    }
+                }
+            },
             "v1EchoRequest": {
                 "type": "object",
                 "properties": {
@@ -75,9 +124,13 @@
                         "type": "string"
                     },
                     "message2": {
-                        "type": "string"
+                        "type": "string",
+                        "nullable": true
                     }
-                }
+                },
+                "required": [
+                    "message"
+                ]
             },
             "v1EchoResponse": {
                 "type": "object",
@@ -85,7 +138,10 @@
                     "message": {
                         "type": "string"
                     }
-                }
+                },
+                "required": [
+                    "message"
+                ]
             }
         }
     },

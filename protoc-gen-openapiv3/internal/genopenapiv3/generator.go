@@ -671,7 +671,7 @@ func (g *generator) addFieldToSchema(doc *OpenAPI, schema *Schema, field *descri
 	}
 
 	// Apply proto3 optional nullable
-	if g.reg.GetProto3OptionalNullable() && field.GetProto3Optional() {
+	if g.reg.GetProto3OptionalNullable() && isFieldExplicit(field) {
 		if fieldSchemaRef.Value != nil {
 			fieldSchemaRef.Value.Nullable = true
 		}
@@ -1220,7 +1220,7 @@ func (g *generator) applyFieldBehaviorToSchema(parentSchema, fieldSchema *Schema
 	// Start with proto3 semantics as default (if enabled)
 	required := false
 	if g.reg.GetUseProto3FieldSemantics() {
-		required = !field.GetProto3Optional() && field.OneofIndex == nil
+		required = !isFieldExplicit(field)
 	}
 
 	// Apply field_behavior annotations (these take precedence)
@@ -1254,7 +1254,7 @@ func (g *generator) getFieldRequiredFromBehavior(field *descriptor.Field) bool {
 	// Start with proto3 semantics as default (if enabled)
 	required := false
 	if g.reg.GetUseProto3FieldSemantics() {
-		required = !field.GetProto3Optional() && field.OneofIndex == nil
+		required = !isFieldExplicit(field)
 	}
 
 	// Apply field_behavior annotations (these take precedence)
@@ -1268,6 +1268,22 @@ func (g *generator) getFieldRequiredFromBehavior(field *descriptor.Field) bool {
 	}
 
 	return required
+}
+
+// isFieldExplicit checks if a field has implicit or explicit presence based on proto3 semantics or editions.
+//
+// https://protobuf.dev/programming-guides/field_presence/#presence-proto3
+func isFieldExplicit(field *descriptor.Field) bool {
+	syntax := field.Message.File.GetSyntax()
+	switch syntax {
+
+	case "proto3":
+		return field.GetProto3Optional() || field.OneofIndex != nil
+	case "editions":
+		return field.GetOptions().GetFeatures().GetFieldPresence() == descriptorpb.FeatureSet_EXPLICIT || field.OneofIndex != nil
+	default:
+		return true // proto2 has presence for all fields
+	}
 }
 
 // Visibility helpers

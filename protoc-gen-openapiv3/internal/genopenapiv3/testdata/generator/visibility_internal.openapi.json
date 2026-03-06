@@ -26,7 +26,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/test.Message"
+                                    "$ref": "#/components/schemas/testMessage"
                                 }
                             }
                         }
@@ -65,7 +65,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/test.MessageWithInternalEnum"
+                                    "$ref": "#/components/schemas/testMessageWithInternalEnum"
                                 }
                             }
                         }
@@ -104,7 +104,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/test.Message"
+                                    "$ref": "#/components/schemas/testMessage"
                                 }
                             }
                         }
@@ -143,7 +143,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/test.PublicMessage"
+                                    "$ref": "#/components/schemas/testPublicMessage"
                                 }
                             }
                         }
@@ -182,7 +182,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/test.MixedFieldMessage"
+                                    "$ref": "#/components/schemas/testMixedFieldMessage"
                                 }
                             }
                         }
@@ -221,7 +221,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/test.MessageWithMixedValueEnum"
+                                    "$ref": "#/components/schemas/testMessageWithMixedValueEnum"
                                 }
                             }
                         }
@@ -260,7 +260,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/test.MessageWithPublicEnum"
+                                    "$ref": "#/components/schemas/testMessageWithPublicEnum"
                                 }
                             }
                         }
@@ -310,14 +310,14 @@
                     }
                 }
             },
-            "test.InternalEnum": {
+            "testInternalEnum": {
                 "type": "string",
                 "enum": [
                     "INTERNAL_UNSPECIFIED",
                     "INTERNAL_VALUE"
                 ]
             },
-            "test.InternalMessage": {
+            "testInternalMessage": {
                 "type": "object",
                 "properties": {
                     "data": {
@@ -325,7 +325,7 @@
                     }
                 }
             },
-            "test.Message": {
+            "testMessage": {
                 "type": "object",
                 "properties": {
                     "id": {
@@ -333,40 +333,40 @@
                     }
                 }
             },
-            "test.MessageWithInternalEnum": {
+            "testMessageWithInternalEnum": {
                 "type": "object",
                 "properties": {
                     "enum_value": {
-                        "$ref": "#/components/schemas/test.InternalEnum"
+                        "$ref": "#/components/schemas/testInternalEnum"
                     },
                     "id": {
                         "type": "string"
                     }
                 }
             },
-            "test.MessageWithMixedValueEnum": {
+            "testMessageWithMixedValueEnum": {
                 "type": "object",
                 "properties": {
                     "enum_value": {
-                        "$ref": "#/components/schemas/test.MixedValueEnum"
+                        "$ref": "#/components/schemas/testMixedValueEnum"
                     },
                     "id": {
                         "type": "string"
                     }
                 }
             },
-            "test.MessageWithPublicEnum": {
+            "testMessageWithPublicEnum": {
                 "type": "object",
                 "properties": {
                     "enum_value": {
-                        "$ref": "#/components/schemas/test.PublicEnum"
+                        "$ref": "#/components/schemas/testPublicEnum"
                     },
                     "id": {
                         "type": "string"
                     }
                 }
             },
-            "test.MixedFieldMessage": {
+            "testMixedFieldMessage": {
                 "type": "object",
                 "properties": {
                     "internal_field": {
@@ -377,7 +377,7 @@
                     }
                 }
             },
-            "test.MixedValueEnum": {
+            "testMixedValueEnum": {
                 "type": "string",
                 "enum": [
                     "MIXED_UNSPECIFIED",
@@ -385,14 +385,14 @@
                     "MIXED_INTERNAL_VALUE"
                 ]
             },
-            "test.PublicEnum": {
+            "testPublicEnum": {
                 "type": "string",
                 "enum": [
                     "PUBLIC_UNSPECIFIED",
                     "PUBLIC_PUBLIC_VALUE"
                 ]
             },
-            "test.PublicMessage": {
+            "testPublicMessage": {
                 "type": "object",
                 "properties": {
                     "id": {

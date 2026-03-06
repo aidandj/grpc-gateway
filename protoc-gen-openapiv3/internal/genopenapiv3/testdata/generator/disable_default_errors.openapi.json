@@ -15,7 +15,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/example.v1.EchoRequest"
+                                "$ref": "#/components/schemas/v1EchoRequest"
                             }
                         }
                     },
@@ -27,7 +27,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/example.v1.EchoResponse"
+                                    "$ref": "#/components/schemas/v1EchoResponse"
                                 }
                             }
                         }
@@ -45,7 +45,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/example.v1.EchoRequest"
+                                "$ref": "#/components/schemas/v1EchoRequest"
                             }
                         }
                     },
@@ -57,7 +57,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/example.v1.EchoResponse"
+                                    "$ref": "#/components/schemas/v1EchoResponse"
                                 }
                             }
                         }
@@ -68,7 +68,7 @@
     },
     "components": {
         "schemas": {
-            "example.v1.EchoRequest": {
+            "v1EchoRequest": {
                 "type": "object",
                 "properties": {
                     "message": {
@@ -76,7 +76,7 @@
                     }
                 }
             },
-            "example.v1.EchoResponse": {
+            "v1EchoResponse": {
                 "type": "object",
                 "properties": {
                     "message": {

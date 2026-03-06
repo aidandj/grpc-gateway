@@ -26,7 +26,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/test.PublicMessage"
+                                    "$ref": "#/components/schemas/testPublicMessage"
                                 }
                             }
                         }
@@ -65,7 +65,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/test.MixedFieldMessage"
+                                    "$ref": "#/components/schemas/testMixedFieldMessage"
                                 }
                             }
                         }
@@ -104,7 +104,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/test.MessageWithMixedValueEnum"
+                                    "$ref": "#/components/schemas/testMessageWithMixedValueEnum"
                                 }
                             }
                         }
@@ -143,7 +143,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/test.MessageWithPublicEnum"
+                                    "$ref": "#/components/schemas/testMessageWithPublicEnum"
                                 }
                             }
                         }
@@ -193,29 +193,29 @@
                     }
                 }
             },
-            "test.MessageWithMixedValueEnum": {
+            "testMessageWithMixedValueEnum": {
                 "type": "object",
                 "properties": {
                     "enum_value": {
-                        "$ref": "#/components/schemas/test.MixedValueEnum"
+                        "$ref": "#/components/schemas/testMixedValueEnum"
                     },
                     "id": {
                         "type": "string"
                     }
                 }
             },
-            "test.MessageWithPublicEnum": {
+            "testMessageWithPublicEnum": {
                 "type": "object",
                 "properties": {
                     "enum_value": {
-                        "$ref": "#/components/schemas/test.PublicEnum"
+                        "$ref": "#/components/schemas/testPublicEnum"
                     },
                     "id": {
                         "type": "string"
                     }
                 }
             },
-            "test.MixedFieldMessage": {
+            "testMixedFieldMessage": {
                 "type": "object",
                 "properties": {
                     "public_field": {
@@ -223,21 +223,21 @@
                     }
                 }
             },
-            "test.MixedValueEnum": {
+            "testMixedValueEnum": {
                 "type": "string",
                 "enum": [
                     "MIXED_UNSPECIFIED",
                     "MIXED_PUBLIC_VALUE"
                 ]
             },
-            "test.PublicEnum": {
+            "testPublicEnum": {
                 "type": "string",
                 "enum": [
                     "PUBLIC_UNSPECIFIED",
                     "PUBLIC_PUBLIC_VALUE"
                 ]
             },
-            "test.PublicMessage": {
+            "testPublicMessage": {
                 "type": "object",
                 "properties": {
                     "id": {

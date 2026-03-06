@@ -15,7 +15,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/example.v1.EchoRequest"
+                                "$ref": "#/components/schemas/v1EchoRequest"
                             }
                         }
                     },
@@ -31,7 +31,7 @@
     },
     "components": {
         "schemas": {
-            "example.v1.EchoRequest": {
+            "v1EchoRequest": {
                 "type": "object",
                 "properties": {
                     "message": {

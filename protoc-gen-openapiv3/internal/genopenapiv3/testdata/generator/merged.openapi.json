@@ -15,7 +15,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/example.v1.EchoRequest2"
+                                "$ref": "#/components/schemas/v1EchoRequest2"
                             }
                         }
                     },
@@ -27,7 +27,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/example.v1.EchoResponse2"
+                                    "$ref": "#/components/schemas/v1EchoResponse2"
                                 }
                             }
                         }
@@ -55,7 +55,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/example.v1.EchoRequest"
+                                "$ref": "#/components/schemas/v1EchoRequest"
                             }
                         }
                     },
@@ -67,7 +67,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/example.v1.EchoResponse"
+                                    "$ref": "#/components/schemas/v1EchoResponse"
                                 }
                             }
                         }
@@ -95,7 +95,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/example.v1.EchoRequest2"
+                                "$ref": "#/components/schemas/v1EchoRequest2"
                             }
                         }
                     },
@@ -107,7 +107,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/example.v1.EchoResponse2"
+                                    "$ref": "#/components/schemas/v1EchoResponse2"
                                 }
                             }
                         }
@@ -128,38 +128,6 @@
     },
     "components": {
         "schemas": {
-            "example.v1.EchoRequest": {
-                "type": "object",
-                "properties": {
-                    "message": {
-                        "type": "string"
-                    }
-                }
-            },
-            "example.v1.EchoRequest2": {
-                "type": "object",
-                "properties": {
-                    "message": {
-                        "type": "string"
-                    }
-                }
-            },
-            "example.v1.EchoResponse": {
-                "type": "object",
-                "properties": {
-                    "message": {
-                        "type": "string"
-                    }
-                }
-            },
-            "example.v1.EchoResponse2": {
-                "type": "object",
-                "properties": {
-                    "message": {
-                        "type": "string"
-                    }
-                }
-            },
             "google.rpc.Status": {
                 "type": "object",
                 "description": "The `Status` type defines a logical error model that is suitable for different programming environments.",
@@ -186,6 +154,38 @@
                     "message": {
                         "type": "string",
                         "description": "A developer-facing error message, which should be in English."
+                    }
+                }
+            },
+            "v1EchoRequest": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    }
+                }
+            },
+            "v1EchoRequest2": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    }
+                }
+            },
+            "v1EchoResponse": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    }
+                }
+            },
+            "v1EchoResponse2": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
                     }
                 }
             }

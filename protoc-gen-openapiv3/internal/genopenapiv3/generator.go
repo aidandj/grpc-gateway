@@ -52,25 +52,34 @@ func New(reg *descriptor.Registry, format Format, openapiVersion string) gen.Gen
 func (g *generator) Generate(targets []*descriptor.File) ([]*descriptor.ResponseFile, error) {
 	var files []*descriptor.ResponseFile
 
-	// Handle merge mode
 	if g.reg.IsAllowMerge() {
-		var mergedTarget *descriptor.File
-		// try to find proto leader
+		// Collect all file-level annotations first
+		var documentAnnotations []*descriptor.File
 		for _, f := range targets {
 			if proto.HasExtension(f.Options, openapioptions.E_Openapiv3Document) {
-				mergedTarget = f
-				break
+				documentAnnotations = append(documentAnnotations, f)
 			}
 		}
+
+		// Merge all files
+		var mergedTarget *descriptor.File
 		for _, f := range targets {
 			if mergedTarget == nil {
 				mergedTarget = f
-			} else if mergedTarget != f {
+			} else {
 				mergedTarget.Enums = append(mergedTarget.Enums, f.Enums...)
 				mergedTarget.Messages = append(mergedTarget.Messages, f.Messages...)
 				mergedTarget.Services = append(mergedTarget.Services, f.Services...)
 			}
 		}
+
+		// Apply annotations from the annotated file(s) to merged target
+		// This separates concerns: annotations vs content
+		if len(documentAnnotations) > 0 {
+			// Use the first annotated file's options
+			mergedTarget.Options = documentAnnotations[0].Options
+		}
+
 		targets = []*descriptor.File{mergedTarget}
 	}
 

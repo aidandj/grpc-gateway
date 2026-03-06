@@ -103,6 +103,7 @@ proto_file: {
     go_package: "github.com/example/v1;examplev1"
     [grpc.gateway.protoc_gen_openapiv3.options.openapiv3_document]: {
       info: {
+        title: "merged openapi spec"
         version: "1.0"
       }
     }

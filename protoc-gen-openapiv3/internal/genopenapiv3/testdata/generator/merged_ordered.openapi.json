@@ -1,7 +1,7 @@
 {
     "openapi": "3.1.0",
     "info": {
-        "title": "example/v1/spec.proto",
+        "title": "merged openapi spec",
         "version": "1.0"
     },
     "paths": {

@@ -104,7 +104,8 @@ func (g *generator) applyComponentsAnnotation(comp *Components, opts *options.Co
 		if comp.Parameters == nil {
 			comp.Parameters = make(map[string]*ParameterRef)
 		}
-		comp.Parameters[name] = &ParameterRef{Value: convertParameter(param)}
+		// convertParameter already returns *ParameterRef (with either ref or value)
+		comp.Parameters[name] = convertParameter(param)
 	}
 
 	// Apply Request Bodies
@@ -182,6 +183,18 @@ func (g *generator) applyOperationAnnotation(op *Operation, method *descriptor.M
 	// Apply request body override if provided
 	if reqBody := opts.GetRequestBody(); reqBody != nil {
 		op.RequestBody = &RequestBodyRef{Value: convertRequestBody(reqBody)}
+	}
+
+	// Apply custom parameters (e.g., header parameters)
+	if params := opts.GetParameters(); params != nil && len(params.GetHeaders()) > 0 {
+		for _, header := range params.GetHeaders() {
+			paramRef := convertParameter(header)
+			// Ensure inline parameters (not refs) are marked as header parameters
+			if paramRef != nil && paramRef.Value != nil {
+				paramRef.Value.In = "header"
+			}
+			op.Parameters = append(op.Parameters, paramRef)
+		}
 	}
 }
 
@@ -623,7 +636,13 @@ func convertResponse(resp *options.Response) *Response {
 	return r
 }
 
-func convertParameter(param *options.Parameter) *Parameter {
+func convertParameter(param *options.Parameter) *ParameterRef {
+	// Check if this is a reference
+	if param.GetRef() != "" {
+		return &ParameterRef{Ref: param.GetRef()}
+	}
+
+	// Otherwise, it's an inline parameter definition
 	p := &Parameter{
 		Name:            param.GetName(),
 		In:              param.GetIn(),
@@ -644,7 +663,7 @@ func convertParameter(param *options.Parameter) *Parameter {
 	if schema := param.GetSchema(); schema != nil {
 		p.Schema = convertSchema(schema)
 	}
-	return p
+	return &ParameterRef{Value: p}
 }
 
 func convertRequestBody(body *options.RequestBody) *RequestBody {

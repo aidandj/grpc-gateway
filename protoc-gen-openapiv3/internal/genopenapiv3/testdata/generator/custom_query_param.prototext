@@ -1,0 +1,87 @@
+file_to_generate: "test/custom_query_param.proto"
+proto_file: {
+  name: "test/custom_query_param.proto"
+  package: "test"
+  message_type: {
+    name: "Request"
+    field: {
+      name: "public_param"
+      number: 1
+      label: LABEL_OPTIONAL
+      type: TYPE_STRING
+      json_name: "publicParam"
+    }
+    field: {
+      name: "another_public_param"
+      number: 2
+      label: LABEL_OPTIONAL
+      type: TYPE_INT32
+      json_name: "anotherPublicParam"
+    }
+  }
+  message_type: {
+    name: "Response"
+    field: {
+      name: "result"
+      number: 1
+      label: LABEL_OPTIONAL
+      type: TYPE_STRING
+      json_name: "result"
+    }
+  }
+  service: {
+    name: "QueryParamService"
+    method: {
+      name: "GetWithParams"
+      input_type: ".test.Request"
+      output_type: ".test.Response"
+      options: {
+        [google.api.http]: {
+          get: "/v1/query-test"
+        }
+        [grpc.gateway.protoc_gen_openapiv3.options.openapiv3_operation]: {
+          parameters: {
+            headers: {
+              name: "test-header"
+              in: "header"
+              description: "this is a custom header parameter"
+              required: true
+              deprecated: true
+              schema: {
+                type: "string"
+              }
+            }
+            headers: {
+              ref: "#/components/parameters/header-ref"
+            }
+          }
+        }
+      }
+    }
+  }
+  options: {
+    go_package: "github.com/test/queryparam;test"
+    [grpc.gateway.protoc_gen_openapiv3.options.openapiv3_document]: {
+      info: {
+        title: "Query Param Visibility Test"
+        version: "1.0"
+      }
+      components: {
+        parameters: {
+          key: "header-ref"
+          value: {
+            name: "header-ref"
+            in: "header"
+            description: "this is a custom header ref parameter"
+            required: true
+            deprecated: true
+            schema: {
+              type: "string"
+            }
+          }
+        }
+      }
+    }
+  }
+  syntax: "proto3"
+}

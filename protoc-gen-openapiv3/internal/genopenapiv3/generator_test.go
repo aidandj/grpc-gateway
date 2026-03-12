@@ -1376,6 +1376,11 @@ func TestGenerateFromProtoDescriptor(t *testing.T) {
 				reg.SetVisibilityRestrictionSelectors([]string{})
 			},
 		},
+		{
+			name:           "header parameters",
+			inputProtoText: "testdata/generator/custom_query_param.prototext",
+			wantJSON:       "testdata/generator/custom_query_param.openapi.json",
+		},
 	}
 
 	for _, tt := range tests {

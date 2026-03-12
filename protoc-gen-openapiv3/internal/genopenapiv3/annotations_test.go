@@ -478,34 +478,60 @@ func TestConvertSchema_ZeroMinimumMaximum(t *testing.T) {
 }
 
 func TestConvertParameter(t *testing.T) {
-	input := &options.Parameter{
-		Name:        "user_id",
-		In:          "path",
-		Description: "User identifier",
-		Required:    true,
-		Schema: &options.Schema{
-			Type:   "string",
-			Format: "uuid",
-		},
-	}
+	t.Run("inline parameter", func(t *testing.T) {
+		input := &options.Parameter{
+			Name:        "user_id",
+			In:          "path",
+			Description: "User identifier",
+			Required:    true,
+			Schema: &options.Schema{
+				Type:   "string",
+				Format: "uuid",
+			},
+		}
 
-	result := convertParameter(input)
+		result := convertParameter(input)
 
-	if result.Name != "user_id" {
-		t.Errorf("Name = %q, want %q", result.Name, "user_id")
-	}
-	if result.In != "path" {
-		t.Errorf("In = %q, want %q", result.In, "path")
-	}
-	if result.Description != "User identifier" {
-		t.Errorf("Description = %q, want %q", result.Description, "User identifier")
-	}
-	if !result.Required {
-		t.Error("Required should be true")
-	}
-	if result.Schema == nil {
-		t.Fatal("Schema should not be nil")
-	}
+		if result == nil || result.Value == nil {
+			t.Fatal("Expected inline parameter with value")
+		}
+		if result.Ref != "" {
+			t.Errorf("Ref should be empty for inline parameter, got %q", result.Ref)
+		}
+		if result.Value.Name != "user_id" {
+			t.Errorf("Name = %q, want %q", result.Value.Name, "user_id")
+		}
+		if result.Value.In != "path" {
+			t.Errorf("In = %q, want %q", result.Value.In, "path")
+		}
+		if result.Value.Description != "User identifier" {
+			t.Errorf("Description = %q, want %q", result.Value.Description, "User identifier")
+		}
+		if !result.Value.Required {
+			t.Error("Required should be true")
+		}
+		if result.Value.Schema == nil {
+			t.Fatal("Schema should not be nil")
+		}
+	})
+
+	t.Run("parameter reference", func(t *testing.T) {
+		input := &options.Parameter{
+			Ref: "#/components/parameters/UserID",
+		}
+
+		result := convertParameter(input)
+
+		if result == nil {
+			t.Fatal("Expected parameter reference")
+		}
+		if result.Ref != "#/components/parameters/UserID" {
+			t.Errorf("Ref = %q, want %q", result.Ref, "#/components/parameters/UserID")
+		}
+		if result.Value != nil {
+			t.Error("Value should be nil for parameter reference")
+		}
+	})
 }
 
 func TestConvertRequestBody(t *testing.T) {
@@ -1150,6 +1176,7 @@ func TestApplyOperationAnnotation(t *testing.T) {
 		wantDeprecated bool
 		wantSecurity   int
 		wantServers    int
+		wantParameters int
 	}{
 		{
 			name: "override summary and description",
@@ -1203,6 +1230,44 @@ func TestApplyOperationAnnotation(t *testing.T) {
 			},
 			wantServers: 1,
 		},
+		{
+			name: "add custom header parameters (inline)",
+			opts: &options.Operation{
+				Parameters: &options.Parameters{
+					Headers: []*options.Parameter{
+						{
+							Name:        "X-Request-ID",
+							Description: "Request tracking ID",
+							Required:    true,
+							Schema: &options.Schema{
+								Type: "string",
+							},
+						},
+						{
+							Name:        "X-API-Version",
+							Description: "API version",
+							Schema: &options.Schema{
+								Type: "string",
+							},
+						},
+					},
+				},
+			},
+			wantParameters: 2,
+		},
+		{
+			name: "add custom header parameter (ref)",
+			opts: &options.Operation{
+				Parameters: &options.Parameters{
+					Headers: []*options.Parameter{
+						{
+							Ref: "#/components/parameters/RequestID",
+						},
+					},
+				},
+			},
+			wantParameters: 1,
+		},
 	}
 
 	for _, tt := range tests {
@@ -1226,6 +1291,16 @@ func TestApplyOperationAnnotation(t *testing.T) {
 					Name:    stringPtr("TestMethod"),
 					Options: methodOpts,
 				},
+			}
+			if params := tt.opts.GetParameters(); params != nil && len(params.GetHeaders()) > 0 {
+				for _, header := range params.GetHeaders() {
+					paramRef := convertParameter(header)
+					// Ensure inline parameters (not refs) are marked as header parameters
+					if paramRef != nil && paramRef.Value != nil {
+						paramRef.Value.In = "header"
+					}
+					op.Parameters = append(op.Parameters, paramRef)
+				}
 			}
 
 			reg := &descriptor.Registry{}
@@ -1253,6 +1328,17 @@ func TestApplyOperationAnnotation(t *testing.T) {
 			}
 			if tt.wantServers > 0 && len(op.Servers) != tt.wantServers {
 				t.Errorf("Servers count = %d, want %d", len(op.Servers), tt.wantServers)
+			}
+			if tt.wantParameters > 0 && len(op.Parameters) != tt.wantParameters {
+				t.Errorf("Parameters count = %d, want %d", len(op.Parameters), tt.wantParameters)
+			}
+			if tt.wantParameters > 0 && len(op.Parameters) > 0 {
+				// Verify that parameters are marked as header parameters
+				for _, param := range op.Parameters {
+					if param.Value != nil && param.Value.In != "header" {
+						t.Errorf("Parameter %q In = %q, want %q", param.Value.Name, param.Value.In, "header")
+					}
+				}
 			}
 		})
 	}

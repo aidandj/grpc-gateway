@@ -194,8 +194,9 @@ message Operation {
   ExternalDocumentation external_docs = 4;
   // Unique string used to identify the operation.
   string operation_id = 5;
-  // field 6 is reserved for 'parameters'.
-  reserved 6;
+  // Custom parameters such as HTTP request headers.
+  // See: https://spec.openapis.org/oas/v3.0.3#parameter-object
+  Parameters parameters = 6;
   // The request body applicable for this operation.
   RequestBody request_body = 7;
   // The list of possible responses as they are returned from executing this
@@ -209,6 +210,16 @@ message Operation {
   repeated Server servers = 11;
   // Custom properties that start with "x-" such as "x-foo".
   map<string, google.protobuf.Value> extensions = 12;
+}
+
+// `Parameters` is a representation of OpenAPI v3 specification's parameters.
+// Note: This allows setting custom parameters like HTTP headers.
+// Path and query parameters are inferred from the Protobuf schema.
+// See: https://spec.openapis.org/oas/v3.0.3#parameter-object
+message Parameters {
+  // `Headers` is one or more HTTP header parameters.
+  // See: https://spec.openapis.org/oas/v3.0.3#parameter-object
+  repeated Parameter headers = 1;
 }
 
 // `Response` is a representation of OpenAPI v3 specification's Response object.
@@ -258,36 +269,42 @@ message RequestBody {
 }
 
 // `Parameter` is a representation of OpenAPI v3 specification's Parameter object.
+// Can also represent a Reference object by setting the ref field.
 //
 // See: https://spec.openapis.org/oas/v3.0.3#parameter-object
+// See: https://spec.openapis.org/oas/v3.0.3#reference-object
 //
 message Parameter {
-  // REQUIRED. The name of the parameter.
-  string name = 1;
-  // REQUIRED. The location of the parameter. Possible values are "query",
-  // "header", "path" or "cookie".
-  string in = 2;
+  // Reference to a parameter defined in components/parameters.
+  // Example: "#/components/parameters/MyParam"
+  // When ref is set, other fields should be ignored.
+  string ref = 1;
+  // REQUIRED (if not using ref). The name of the parameter.
+  string name = 2;
+  // REQUIRED (if not using ref). The location of the parameter.
+  // Possible values are "query", "header", "path" or "cookie".
+  string in = 3;
   // A brief description of the parameter.
-  string description = 3;
+  string description = 4;
   // Determines whether this parameter is mandatory.
-  bool required = 4;
+  bool required = 5;
   // Specifies that a parameter is deprecated.
-  bool deprecated = 5;
+  bool deprecated = 6;
   // Sets the ability to pass empty-valued parameters.
-  bool allow_empty_value = 6;
+  bool allow_empty_value = 7;
   // Describes how the parameter value will be serialized.
-  string style = 7;
+  string style = 8;
   // When this is true, parameter values of type array or object generate
   // separate parameters for each value.
-  bool explode = 8;
+  bool explode = 9;
   // Determines whether the parameter value SHOULD allow reserved characters.
-  bool allow_reserved = 9;
+  bool allow_reserved = 10;
   // The schema defining the type used for the parameter.
-  Schema schema = 10;
+  Schema schema = 11;
   // Example of the parameter's potential value.
-  string example = 11;
+  string example = 12;
   // Custom properties that start with "x-" such as "x-foo".
-  map<string, google.protobuf.Value> extensions = 12;
+  map<string, google.protobuf.Value> extensions = 13;
 }
 
 // `Header` is a representation of OpenAPI v3 specification's Header object.

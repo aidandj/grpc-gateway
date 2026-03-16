@@ -220,6 +220,9 @@ message Parameters {
   // `Headers` is one or more HTTP header parameters.
   // See: https://spec.openapis.org/oas/v3.0.3#parameter-object
   repeated Parameter headers = 1;
+  // `Cookies` is one or more cookie parameters.
+  // See: https://spec.openapis.org/oas/v3.0.3#parameter-object
+  repeated Parameter cookies = 2;
 }
 
 // `Response` is a representation of OpenAPI v3 specification's Response object.

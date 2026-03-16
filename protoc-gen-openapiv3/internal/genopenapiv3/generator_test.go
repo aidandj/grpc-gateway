@@ -1378,8 +1378,8 @@ func TestGenerateFromProtoDescriptor(t *testing.T) {
 		},
 		{
 			name:           "header parameters",
-			inputProtoText: "testdata/generator/custom_query_param.prototext",
-			wantJSON:       "testdata/generator/custom_query_param.openapi.json",
+			inputProtoText: "testdata/generator/custom_param.prototext",
+			wantJSON:       "testdata/generator/custom_param.openapi.json",
 		},
 	}
 

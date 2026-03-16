@@ -186,12 +186,20 @@ func (g *generator) applyOperationAnnotation(op *Operation, method *descriptor.M
 	}
 
 	// Apply custom parameters (e.g., header parameters)
-	if params := opts.GetParameters(); params != nil && len(params.GetHeaders()) > 0 {
+	if params := opts.GetParameters(); params != nil && (len(params.GetHeaders()) > 0 || len(params.GetCookies()) > 0) {
 		for _, header := range params.GetHeaders() {
 			paramRef := convertParameter(header)
 			// Ensure inline parameters (not refs) are marked as header parameters
 			if paramRef != nil && paramRef.Value != nil {
 				paramRef.Value.In = "header"
+			}
+			op.Parameters = append(op.Parameters, paramRef)
+		}
+		for _, cookie := range params.GetCookies() {
+			paramRef := convertParameter(cookie)
+			// Ensure inline parameters (not refs) are marked as cookie parameters
+			if paramRef != nil && paramRef.Value != nil {
+				paramRef.Value.In = "cookie"
 			}
 			op.Parameters = append(op.Parameters, paramRef)
 		}

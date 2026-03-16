@@ -1268,6 +1268,44 @@ func TestApplyOperationAnnotation(t *testing.T) {
 			},
 			wantParameters: 1,
 		},
+		{
+			name: "add custom cookie parameters (inline)",
+			opts: &options.Operation{
+				Parameters: &options.Parameters{
+					Cookies: []*options.Parameter{
+						{
+							Name:        "X-Request-ID",
+							Description: "Request tracking ID",
+							Required:    true,
+							Schema: &options.Schema{
+								Type: "string",
+							},
+						},
+						{
+							Name:        "X-API-Version",
+							Description: "API version",
+							Schema: &options.Schema{
+								Type: "string",
+							},
+						},
+					},
+				},
+			},
+			wantParameters: 2,
+		},
+		{
+			name: "add custom cookie parameter (ref)",
+			opts: &options.Operation{
+				Parameters: &options.Parameters{
+					Cookies: []*options.Parameter{
+						{
+							Ref: "#/components/parameters/RequestID",
+						},
+					},
+				},
+			},
+			wantParameters: 1,
+		},
 	}
 
 	for _, tt := range tests {
@@ -1323,10 +1361,10 @@ func TestApplyOperationAnnotation(t *testing.T) {
 				t.Errorf("Parameters count = %d, want %d", len(op.Parameters), tt.wantParameters)
 			}
 			if tt.wantParameters > 0 && len(op.Parameters) > 0 {
-				// Verify that parameters are marked as header parameters
+				// Verify that parameters are marked as header or cookie parameters
 				for _, param := range op.Parameters {
-					if param.Value != nil && param.Value.In != "header" {
-						t.Errorf("Parameter %q In = %q, want %q", param.Value.Name, param.Value.In, "header")
+					if param.Value != nil && (param.Value.In != "header" && param.Value.In != "cookie") {
+						t.Errorf("Parameter %q In = %q, want %q or %q", param.Value.Name, param.Value.In, "header", "cookie")
 					}
 				}
 			}

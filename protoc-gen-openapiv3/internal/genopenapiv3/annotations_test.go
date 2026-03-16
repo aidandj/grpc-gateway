@@ -1292,16 +1292,6 @@ func TestApplyOperationAnnotation(t *testing.T) {
 					Options: methodOpts,
 				},
 			}
-			if params := tt.opts.GetParameters(); params != nil && len(params.GetHeaders()) > 0 {
-				for _, header := range params.GetHeaders() {
-					paramRef := convertParameter(header)
-					// Ensure inline parameters (not refs) are marked as header parameters
-					if paramRef != nil && paramRef.Value != nil {
-						paramRef.Value.In = "header"
-					}
-					op.Parameters = append(op.Parameters, paramRef)
-				}
-			}
 
 			reg := &descriptor.Registry{}
 			gen := &generator{reg: reg}

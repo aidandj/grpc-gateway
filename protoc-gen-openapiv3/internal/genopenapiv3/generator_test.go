@@ -636,6 +636,33 @@ func TestFormatMarshal(t *testing.T) {
 	}
 }
 
+func TestFormatResponses(t *testing.T) {
+	op := &Operation{
+		Responses: &Responses{
+			Codes: map[string]*ResponseRef{
+				"200": {Value: NewResponse("OK")},
+				"400": {Value: NewResponse("Bad Request")},
+			},
+		},
+	}
+
+	jsonBytes, err := FormatJSON.Marshal(op)
+	if err != nil {
+		t.Fatalf("FormatJSON.Marshal() failed: %v", err)
+	}
+	if !strings.Contains(string(jsonBytes), `"200"`) {
+		t.Error("JSON output should contain 200 response code")
+	}
+
+	yamlBytes, err := FormatYAML.Marshal(op)
+	if err != nil {
+		t.Fatalf("FormatYAML.Marshal() failed: %v", err)
+	}
+	if !strings.Contains(string(yamlBytes), `"200":`) {
+		t.Error("YAML output should contain 200 response code")
+	}
+}
+
 func TestPathItemSetOperation(t *testing.T) {
 	pathItem := &PathItem{}
 	op := &Operation{OperationID: "testOp"}
@@ -1488,6 +1515,60 @@ func TestApplyNullable(t *testing.T) {
 	})
 }
 
+func TestGenerateFromProtoDescriptorYAML(t *testing.T) {
+	tests := []struct {
+		name             string
+		inputProtoText   string
+		wantYaml         string
+		registryModifier func(*descriptor.Registry)
+	}{
+		{
+			name:           "comprehensive v3.1.0 features",
+			inputProtoText: "testdata/generator/comprehensive_v31.prototext",
+			wantYaml:       "testdata/generator/comprehensive_v31.openapi.yaml",
+			registryModifier: func(reg *descriptor.Registry) {
+				reg.SetVisibilityRestrictionSelectors([]string{})
+				reg.SetPreserveRPCOrder(true)
+				reg.SetEnableRpcDeprecation(true)
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Load prototext file
+			b, err := os.ReadFile(tt.inputProtoText)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			// Unmarshal into CodeGeneratorRequest
+			var req pluginpb.CodeGeneratorRequest
+			if err := prototext.Unmarshal(b, &req); err != nil {
+				t.Fatal(err)
+			}
+
+			// Generate OpenAPI spec
+			resp := requireGenerate(t, &req, "3.1.0", tt.registryModifier, FormatYAML)
+			if len(resp) != 1 {
+				t.Fatalf("invalid count, expected: 1, actual: %d", len(resp))
+			}
+			got := resp[0].GetContent()
+
+			// Load expected YAML
+			wantBytes, err := os.ReadFile(tt.wantYaml)
+			if err != nil {
+				t.Fatalf("Failed to read expected YAML file: %v", err)
+			}
+			want := string(wantBytes)
+
+			if got != want {
+				t.Errorf("Generated YAML does not match expected.\nGot:\n%s\n\nWant:\n%s", got, want)
+			}
+		})
+	}
+}
+
 func TestGenerateFromProtoDescriptor(t *testing.T) {
 	tests := []struct {
 		name             string
@@ -1646,7 +1727,7 @@ func TestGenerateFromProtoDescriptor(t *testing.T) {
 			}
 
 			// Generate OpenAPI spec
-			resp := requireGenerate(t, &req, "3.1.0", tt.registryModifier)
+			resp := requireGenerate(t, &req, "3.1.0", tt.registryModifier, FormatJSON)
 			if len(resp) != 1 {
 				t.Fatalf("invalid count, expected: 1, actual: %d", len(resp))
 			}
@@ -1673,6 +1754,7 @@ func requireGenerate(
 	req *pluginpb.CodeGeneratorRequest,
 	openapiVersion string,
 	registryModifier func(*descriptor.Registry),
+	format Format,
 ) []*descriptor.ResponseFile {
 	tb.Helper()
 
@@ -1695,7 +1777,7 @@ func requireGenerate(
 		targets = append(targets, f)
 	}
 
-	g, err := New(reg, FormatJSON, openapiVersion)
+	g, err := New(reg, format, openapiVersion)
 	if err != nil {
 		tb.Fatalf("failed to create generator: %s", err)
 	}
@@ -1725,7 +1807,7 @@ func requireGenerateInline(
 		tb.Fatalf("failed to unmarshal prototext: %s", err)
 	}
 
-	return requireGenerate(tb, &req, "3.1.0", registryModifier)
+	return requireGenerate(tb, &req, "3.1.0", registryModifier, FormatJSON)
 }
 
 // Basic prototext for a simple service with GET/POST endpoints
